@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+from datetime import datetime
 
 
 class CreateJob(BaseModel):
@@ -49,4 +50,19 @@ class UpdateJob(BaseModel):
         default=None,
         ge=100,
         le=500
+    )
+
+
+class JobResponse(BaseModel):
+
+    id: int
+    name: str
+    role: str
+    min_salary: float
+    max_salary: float
+    is_active: bool
+    created_at: datetime
+
+    model_config = ConfigDict(
+        from_attributes=True
     )

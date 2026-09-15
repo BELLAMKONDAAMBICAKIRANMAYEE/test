@@ -1,9 +1,10 @@
-from fastapi import APIRouter
-from datetime import datetime
-from models import Job
-from schemas import CreateJob, UpdateJob
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pagination import get_db
+
+from database import LocalSession
+from models import Job
+from schemas import CreateJob, UpdateJob, JobResponse
+
 
 router = APIRouter(
     prefix="/jobs",
@@ -11,85 +12,143 @@ router = APIRouter(
 )
 
 
-# CREATE JOB
-@router.post("/",response_model=JobResponse,status_code=201)
-def createjob(payload: CreateJob,db:Session=Depends(get_db)):
-     record=Job(**jobdata.model_dum())
-     db.ass(record)
-     db.commit()
-     db.refresh(record)
-     return record
+def get_db():
+
+    db = LocalSession()
+
+    try:
+        yield db
+
+    finally:
+        db.close()
 
 
+# CREATE
+@router.post(
+    "/",
+    response_model=JobResponse,
+    status_code=201
+)
+def createjob(
+    payload: CreateJob,
+    db: Session = Depends(get_db)
+):
 
-    # global count
+    record = Job(
+        **payload.model_dump()
+    )
 
-    # job = {
-    #     "id": count,
-    #     **payload.model_dump(),
-    #     "is_active": True,
-    #     "Created_at": datetime.now()
-    # }
+    db.add(record)
 
-    # # jobs[count] = job
+    db.commit()
 
-    # # count += 1
+    db.refresh(record)
 
-    # return job
-
-
-# GET ALL JOBS
-# @router.get("/")
-# def jobs_list():
-
-#     return list(jobs.values())
-
-
-# # GET SINGLE JOB
-# @router.get("/{job_id}")
-# def get_job(job_id: int):
-#     if job_id not in jobs:
-#             return {
-#                 "message": "Job not found"
-#             }
-#     return jobs.get(job_id)
-
-   
+    return record
 
 
-# # UPDATE JOB
-# @router.put("/{job_id}")
-# def update_job(
-#     job_id: int,
-#     payload: UpdateJob
-# ):
+# GET ALL
+@router.get(
+    "/",
+    response_model=list[JobResponse]
+)
+def jobs_list(
+    db: Session = Depends(get_db)
+):
 
-#     if job_id not in jobs:
-#         return {
-#             "message": "Job not found"
-#         }
-
-#     update_data = payload.model_dump(
-#         exclude_unset=True
-#     )
-
-#     jobs[job_id].update(update_data)
-
-#     return jobs[job_id]
+    return db.query(Job).all()
 
 
-# # DELETE JOB
-# @router.delete("/{job_id}")
-# def delete_job(job_id: int):
+# GET SINGLE
+@router.get(
+    "/{job_id}",
+    response_model=JobResponse
+)
+def get_job(
+    job_id: int,
+    db: Session = Depends(get_db)
+):
 
-#     if job_id not in jobs:
-#         return {
-#             "message": "Job not found"
-#         }
+    job = (
+        db.query(Job)
+        .filter(Job.id == job_id)
+        .first()
+    )
 
-#     deleted_job = jobs.pop(job_id)
+    if job is None:
 
-#     return {
-#         "message": "Job deleted successfully",
-#         "job": deleted_job
-#     }
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found"
+        )
+
+    return job
+
+
+# UPDATE
+@router.put(
+    "/{job_id}",
+    response_model=JobResponse
+)
+def update_job(
+    job_id: int,
+    payload: UpdateJob,
+    db: Session = Depends(get_db)
+):
+
+    job = (
+        db.query(Job)
+        .filter(Job.id == job_id)
+        .first()
+    )
+
+    if job is None:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found"
+        )
+
+    update_data = payload.model_dump(
+        exclude_unset=True
+    )
+
+    for key, value in update_data.items():
+
+        setattr(job, key, value)
+
+    db.commit()
+
+    db.refresh(job)
+
+    return job
+
+
+# DELETE
+@router.delete("/{job_id}")
+def delete_job(
+    job_id: int,
+    db: Session = Depends(get_db)
+):
+
+    job = (
+        db.query(Job)
+        .filter(Job.id == job_id)
+        .first()
+    )
+
+    if job is None:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found"
+        )
+
+    db.delete(job)
+
+    db.commit()
+
+    return {
+        "message": "Job deleted successfully",
+        "job_id": job_id
+    }

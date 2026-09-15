@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+from sqlalchemy.orm import Session
+
 from database import LocalSession
-from Day3 import jobs
+from models import Job
 
 
 router = APIRouter(
@@ -8,21 +10,39 @@ router = APIRouter(
     tags=["Paginations by pardhu"]
 )
 
+
 def get_db():
-    db=LocalSession()
+
+    db = LocalSession()
+
     try:
         yield db
+
     finally:
         db.close()
 
-  
 
 @router.get("/jobs")
 def jobs_pagination(
-    skip: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=100)
+    skip: int = Query(
+        default=0,
+        ge=0
+    ),
+
+    limit: int = Query(
+        default=10,
+        ge=1,
+        le=100
+    ),
+
+    db: Session = Depends(get_db)
 ):
 
-    job_list = list(jobs.values())
+    job_list = (
+        db.query(Job)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
-    return job_list[skip:skip + limit]
+    return job_list

@@ -1,0 +1,1 @@
+DATABASE_URL="mysql+pymysql://root:Ambica@12@localhost/ats_db/"
