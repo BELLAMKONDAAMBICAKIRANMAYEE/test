@@ -3,6 +3,10 @@ from typing import Optional
 from datetime import datetime
 
 
+# =========================
+# JOB SCHEMAS
+# =========================
+
 class CreateJob(BaseModel):
 
     name: str = Field(
@@ -61,6 +65,38 @@ class JobResponse(BaseModel):
     min_salary: float
     max_salary: float
     is_active: bool
+    created_at: datetime
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
+
+# =========================
+# STUDENT SCHEMAS
+# =========================
+
+class CreateStudents(BaseModel):
+
+    name: str = Field(
+        min_length=3,
+        max_length=150
+    )
+
+    email: str
+
+    phone: str = Field(
+        min_length=10,
+        max_length=13
+    )
+
+
+class StudentResponse(BaseModel):
+
+    id: int
+    name: str
+    email: str
+    phone: str
     created_at: datetime
 
     model_config = ConfigDict(

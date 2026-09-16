@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 DATABASE_URL = URL.create(
     drivername="mysql+pymysql",
     username="root",
-    password="Ambica@12",
+    password="admin@123",
     host="localhost",
     database="ats_db"
 )
@@ -24,6 +24,14 @@ LocalSession = sessionmaker(
     autocommit=False
 )
 
+def get_db():
 
+    db = LocalSession()
+
+    try:
+        yield db
+
+    finally:
+        db.close()
 class Base(DeclarativeBase):
     pass

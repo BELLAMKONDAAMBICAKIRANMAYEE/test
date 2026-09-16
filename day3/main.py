@@ -1,13 +1,11 @@
 from fastapi import FastAPI
 
 from database import engine, Base
-from models import Job
+from models import Job, Student
 
-from Day3 import router as job_router
-from pagination import router as pagination_router
+from routers.job_router import router as job_router
+from routers.student_routes import router as student_router
 
-
-# Create database tables
 Base.metadata.create_all(bind=engine)
 
 
@@ -24,4 +22,4 @@ def health():
 
 
 app.include_router(job_router)
-app.include_router(pagination_router)
+app.include_router(student_router)

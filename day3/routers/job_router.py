@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-from database import LocalSession
+from database import get_db
 from models import Job
 from schemas import CreateJob, UpdateJob, JobResponse
 
@@ -10,17 +9,6 @@ router = APIRouter(
     prefix="/jobs",
     tags=["Jobs"]
 )
-
-
-def get_db():
-
-    db = LocalSession()
-
-    try:
-        yield db
-
-    finally:
-        db.close()
 
 
 # CREATE
@@ -39,9 +27,7 @@ def createjob(
     )
 
     db.add(record)
-
     db.commit()
-
     db.refresh(record)
 
     return record
@@ -76,7 +62,6 @@ def get_job(
     )
 
     if job is None:
-
         raise HTTPException(
             status_code=404,
             detail="Job not found"
@@ -103,7 +88,6 @@ def update_job(
     )
 
     if job is None:
-
         raise HTTPException(
             status_code=404,
             detail="Job not found"
@@ -114,11 +98,9 @@ def update_job(
     )
 
     for key, value in update_data.items():
-
         setattr(job, key, value)
 
     db.commit()
-
     db.refresh(job)
 
     return job
@@ -138,14 +120,12 @@ def delete_job(
     )
 
     if job is None:
-
         raise HTTPException(
             status_code=404,
             detail="Job not found"
         )
 
     db.delete(job)
-
     db.commit()
 
     return {
