@@ -24,14 +24,6 @@ LocalSession = sessionmaker(
     autocommit=False
 )
 
-def get_db():
 
-    db = LocalSession()
-
-    try:
-        yield db
-
-    finally:
-        db.close()
 class Base(DeclarativeBase):
     pass

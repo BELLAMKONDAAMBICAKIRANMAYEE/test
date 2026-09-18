@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
+
+from dependency import get_db, pagination
 from models import Job
 from schemas import CreateJob, UpdateJob, JobResponse
 
@@ -33,16 +34,22 @@ def createjob(
     return record
 
 
-# GET ALL
+# GET ALL + PAGINATION
 @router.get(
     "/",
     response_model=list[JobResponse]
 )
 def jobs_list(
+    pages: dict = Depends(pagination),
     db: Session = Depends(get_db)
 ):
 
-    return db.query(Job).all()
+    return (
+        db.query(Job)
+        .offset(pages["skip"])
+        .limit(pages["limit"])
+        .all()
+    )
 
 
 # GET SINGLE

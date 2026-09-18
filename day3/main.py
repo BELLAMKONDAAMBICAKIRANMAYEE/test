@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 
 from database import engine, Base
-from models import Job, Student
+
+from models import Job, Student, Application
 
 from routers.job_router import router as job_router
 from routers.student_routes import router as student_router
+from routers.application_routes import router as application_router
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -16,6 +19,7 @@ app = FastAPI(
 
 @app.get("/")
 def health():
+
     return {
         "message": "app running properly"
     }
@@ -23,3 +27,4 @@ def health():
 
 app.include_router(job_router)
 app.include_router(student_router)
+app.include_router(application_router)

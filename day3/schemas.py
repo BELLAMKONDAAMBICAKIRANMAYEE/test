@@ -102,3 +102,28 @@ class StudentResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True
     )
+class UpdateStudents(BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        min_length=3,
+        max_length=150
+    )
+
+    email: Optional[str] = None
+
+    phone: Optional[str] = Field(
+        default=None,
+        min_length=10,
+        max_length=13
+    )
+class CreateApplication(BaseModel):
+    student_id:int
+    job_id:int
+
+class ApplicationResponse(BaseModel):
+    id:int
+    student_id:int
+    job_id:int
+    status:str
+    applied_at:datetime

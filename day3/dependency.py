@@ -1,6 +1,19 @@
 from fastapi import Query
+from database import LocalSession
 
-def jobs_pagination(
+
+def get_db():
+
+    db = LocalSession()
+
+    try:
+        yield db
+
+    finally:
+        db.close()
+
+
+def pagination(
     skip: int = Query(
         default=0,
         ge=0
@@ -17,4 +30,3 @@ def jobs_pagination(
         "skip": skip,
         "limit": limit
     }
-
