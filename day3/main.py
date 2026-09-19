@@ -1,7 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
-
 from models import Job, Student, Application
 
 from routers.job_router import router as job_router
@@ -17,6 +17,21 @@ app = FastAPI(
 )
 
 
+# =========================
+# CORS CONFIGURATION
+# =========================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.get("/")
 def health():
 
@@ -24,6 +39,10 @@ def health():
         "message": "app running properly"
     }
 
+
+# =========================
+# ROUTERS
+# =========================
 
 app.include_router(job_router)
 app.include_router(student_router)
