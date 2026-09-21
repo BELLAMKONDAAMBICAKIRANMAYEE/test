@@ -12,7 +12,14 @@ from datetime import datetime
 from sqlalchemy.orm import relationship
 from database import Base
 
-
+class User(Base):
+    __tablename__="users"
+    id=Column(Integer,primary_key=True,index=True)
+    name=Column(String(100),nullable=False)
+    email=Column(String(200),unique=True,nullable=False,index=True)
+    hashed_pwd=Column(String(50),nullable=False)
+    role=Column(String(50),default="student") #student | recruiter | admin
+    is_active=Column(Boolean,default=True)
 class Student(Base):
 
     __tablename__ = "students"
@@ -48,6 +55,7 @@ class Student(Base):
         "Application",
         back_populates="student"
     )
+    branch=Column(String(100))
 
 
 class Job(Base):

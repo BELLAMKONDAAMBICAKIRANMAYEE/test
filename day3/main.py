@@ -7,6 +7,7 @@ from models import Job, Student, Application
 from routers.job_router import router as job_router
 from routers.student_routes import router as student_router
 from routers.application_routes import router as application_router
+from routers.auth_router import router as auth_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -47,3 +48,4 @@ def health():
 app.include_router(job_router)
 app.include_router(student_router)
 app.include_router(application_router)
+app.include_router(auth_router)

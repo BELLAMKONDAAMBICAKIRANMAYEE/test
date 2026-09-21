@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 DATABASE_URL = URL.create(
     drivername="mysql+pymysql",
     username="root",
-    password="admin@123",
+    password="admin",
     host="localhost",
     database="ats_db"
 )

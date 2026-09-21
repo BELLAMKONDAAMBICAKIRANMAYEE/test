@@ -121,9 +121,21 @@ class CreateApplication(BaseModel):
     student_id:int
     job_id:int
 
+#applications schema
+
 class ApplicationResponse(BaseModel):
     id:int
     student_id:int
     job_id:int
     status:str
     applied_at:datetime
+
+#users schema
+class Register(BaseModel):
+    name:str=Field(min_length=2,max_length=150)
+    email:str=Field(min_length=5)
+    password:str=Field(min_length=6)
+    role:str="student"
+    
+
+
