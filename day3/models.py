@@ -17,7 +17,7 @@ class User(Base):
     id=Column(Integer,primary_key=True,index=True)
     name=Column(String(100),nullable=False)
     email=Column(String(200),unique=True,nullable=False,index=True)
-    hashed_pwd=Column(String(50),nullable=False)
+    hashed_pwd=Column(String(255),nullable=False)
     role=Column(String(50),default="student") #student | recruiter | admin
     is_active=Column(Boolean,default=True)
 class Student(Base):

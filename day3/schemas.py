@@ -136,6 +136,15 @@ class Register(BaseModel):
     email:str=Field(min_length=5)
     password:str=Field(min_length=6)
     role:str="student"
-    
+
+
+#login user
+class Login(BaseModel):
+    email:str
+    password:str
+
+class TokenResponse(BaseModel):
+    acess_token:str
+    token_type:str="bearer"
 
 

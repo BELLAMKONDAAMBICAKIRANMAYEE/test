@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from dependency import get_db, pagination
+from dependency import get_db, pagination, require_role
 from models import Student
 from schemas import (
     CreateStudents,
@@ -23,7 +23,7 @@ router = APIRouter(
 )
 def create_student(
     payload: CreateStudents,
-    db: Session = Depends(get_db)
+    db: Session =  Depends(get_db),_=Depends(require_role("recruiter"))
 ):
 
     student = Student(

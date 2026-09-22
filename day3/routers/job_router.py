@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from dependency import get_db, pagination
+from dependency import get_db, pagination, require_role
 from models import Job
 from schemas import CreateJob, UpdateJob, JobResponse
 
@@ -20,7 +20,7 @@ router = APIRouter(
 )
 def createjob(
     payload: CreateJob,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),_=Depends(require_role("admin","recruiter"))
 ):
 
     record = Job(
@@ -85,7 +85,7 @@ def get_job(
 def update_job(
     job_id: int,
     payload: UpdateJob,
-    db: Session = Depends(get_db)
+    db: Session =  Depends(get_db),_=Depends(require_role("admin"))
 ):
 
     job = (
