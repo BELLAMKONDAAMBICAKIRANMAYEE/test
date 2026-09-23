@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from dependency import get_db, pagination, require_role
+from dependency import get_async_db, pagination, require_role
 from models import Job
 from schemas import CreateJob, UpdateJob, JobResponse
 
@@ -12,15 +13,19 @@ router = APIRouter(
 )
 
 
+# =========================
 # CREATE
+# =========================
+
 @router.post(
     "/",
     response_model=JobResponse,
     status_code=201
 )
-def createjob(
+async def createjob(
     payload: CreateJob,
-    db: Session = Depends(get_db),_=Depends(require_role("admin","recruiter"))
+    db: AsyncSession = Depends(get_async_db),
+    current_user=Depends(require_role("admin", "recruiter"))
 ):
 
     record = Job(
@@ -28,45 +33,55 @@ def createjob(
     )
 
     db.add(record)
-    db.commit()
-    db.refresh(record)
+
+    await db.commit()
+    await db.refresh(record)
 
     return record
 
 
+# =========================
 # GET ALL + PAGINATION
+# =========================
+
 @router.get(
     "/",
     response_model=list[JobResponse]
 )
-def jobs_list(
+async def jobs_list(
     pages: dict = Depends(pagination),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_async_db)
 ):
 
-    return (
-        db.query(Job)
+    result = await db.execute(
+        select(Job)
         .offset(pages["skip"])
         .limit(pages["limit"])
-        .all()
     )
 
+    return result.scalars().all()
 
+
+# =========================
 # GET SINGLE
+# =========================
+
 @router.get(
     "/{job_id}",
     response_model=JobResponse
 )
-def get_job(
+async def get_job(
     job_id: int,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_async_db)
 ):
 
-    job = (
-        db.query(Job)
-        .filter(Job.id == job_id)
-        .first()
+    result = await db.execute(
+        select(Job).where(
+            Job.id == job_id
+        )
     )
+
+    job = result.scalar_one_or_none()
 
     if job is None:
         raise HTTPException(
@@ -77,22 +92,28 @@ def get_job(
     return job
 
 
+# =========================
 # UPDATE
+# =========================
+
 @router.put(
     "/{job_id}",
     response_model=JobResponse
 )
-def update_job(
+async def update_job(
     job_id: int,
     payload: UpdateJob,
-    db: Session =  Depends(get_db),_=Depends(require_role("admin"))
+    db: AsyncSession = Depends(get_async_db),
+    current_user=Depends(require_role("admin"))
 ):
 
-    job = (
-        db.query(Job)
-        .filter(Job.id == job_id)
-        .first()
+    result = await db.execute(
+        select(Job).where(
+            Job.id == job_id
+        )
     )
+
+    job = result.scalar_one_or_none()
 
     if job is None:
         raise HTTPException(
@@ -107,24 +128,30 @@ def update_job(
     for key, value in update_data.items():
         setattr(job, key, value)
 
-    db.commit()
-    db.refresh(job)
+    await db.commit()
+    await db.refresh(job)
 
     return job
 
 
+# =========================
 # DELETE
+# =========================
+
 @router.delete("/{job_id}")
-def delete_job(
+async def delete_job(
     job_id: int,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_async_db),
+    current_user=Depends(require_role("admin"))
 ):
 
-    job = (
-        db.query(Job)
-        .filter(Job.id == job_id)
-        .first()
+    result = await db.execute(
+        select(Job).where(
+            Job.id == job_id
+        )
     )
+
+    job = result.scalar_one_or_none()
 
     if job is None:
         raise HTTPException(
@@ -132,8 +159,8 @@ def delete_job(
             detail="Job not found"
         )
 
-    db.delete(job)
-    db.commit()
+    await db.delete(job)
+    await db.commit()
 
     return {
         "message": "Job deleted successfully",

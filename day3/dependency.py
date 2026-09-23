@@ -1,5 +1,5 @@
 from fastapi import Query
-from database import LocalSession
+from database import LocalSession,AsyncLocalSession
 from utils.security import decode_token
 from sqlalchemy.orm import Session
 from fastapi import Depends,HTTPException
@@ -17,6 +17,11 @@ def get_db():
 
     finally:
         db.close()
+
+#async get_db
+async def get_async_db():
+    async with AsyncLocalSession() as session:
+        yield session
 
 
 def pagination(
@@ -44,7 +49,7 @@ def get_create_user(token:str=Depends(oauth2_schema),db:Session=Depends(get_db))
         raise HTTPException(detail="Invalid Token or Expired Token",status_code=401)
 
     user=db.query(User).filter(User.id==int(payload["sub"])).first()
-    if not user or user.is_active:
+    if not user :
         raise HTTPException(status_code=401,detail="user not found or inactive"
                             )
     return user
@@ -58,3 +63,7 @@ def require_role(*roles:str):
             )
         return current_user
     return checker
+
+async def get_async_db():
+    async with AsyncLocalSession() as session:
+        yield session
