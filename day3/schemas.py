@@ -102,6 +102,12 @@ class StudentResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+class UploadResumeResponse(BaseModel):
+    student_id:int
+    filename:str
+    message:str
+
 class UpdateStudents(BaseModel):
 
     name: Optional[str] = Field(

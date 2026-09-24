@@ -20,6 +20,7 @@ class User(Base):
     hashed_pwd=Column(String(255),nullable=False)
     role=Column(String(50),default="student") #student | recruiter | admin
     is_active=Column(Boolean,default=True)
+
 class Student(Base):
 
     __tablename__ = "students"
@@ -55,7 +56,8 @@ class Student(Base):
         "Application",
         back_populates="student"
     )
-    branch=Column(String(100))
+    resume_path=Column(String(250),nullable=False)
+    
 
 
 class Job(Base):
