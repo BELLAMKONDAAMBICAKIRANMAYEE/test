@@ -4,11 +4,15 @@ import os
 from jose import jwt,JWTError
 # from dotenv import getenv
 from datetime import datetime,timedelta
+from dotenv import load_dotenv
+from os import getenv
 
-SECRET="CoDeGnAn2018"#os getenv(secret_key)
-ALGORITHM="HS256"
+load_dotenv()
+
+SECRET=os.getenv("SECRET")#os getenv(secret_key)
+ALGORITHM=os.getenv("ALGORITHM","HS256")
 #ALGORTHIMS LIST
-EXPIRE_MINUTES=60
+EXPIRE_MINUTES=os.getenv("EXPIRE_MINUTES",60)
 
 def hash_password(plain:str):
     return bcrypt.hashpw(plain.encode(),bcrypt.gensalt()).decode()

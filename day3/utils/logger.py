@@ -8,7 +8,7 @@ def get_logger(name:str) -> logging.Logger:
     if logger.handlers:
         return logger
 
-    formatter=logging.Formater("%(ascetime)s | %(levelname)s | %(name)s | %(message)s",datefmt="%Y-%m-%d %H:%H:%S")
+    formatter=logging.Formatter("%(ascetime)s | %(levelname)s | %(name)s | %(message)s",datefmt="%Y-%m-%d %H:%H:%S")
 
     console=logging.StreamHandler()
     console.setFormatter(formatter)

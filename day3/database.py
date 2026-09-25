@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
@@ -5,13 +6,14 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker
 )
+import os
 
-
+load_dotenv()
 # =========================
 # SYNC DATABASE
 # =========================
 
-DATABASE_URL = "mysql+pymysql://root:admin@localhost/ats_db"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(
     DATABASE_URL,
@@ -29,9 +31,7 @@ LocalSession = sessionmaker(
 # ASYNC DATABASE
 # =========================
 
-ASYNC_DATABASE_URL = (
-    "mysql+asyncmy://root:admin@localhost/ats_db"
-)
+ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL")
 
 async_engine = create_async_engine(
     ASYNC_DATABASE_URL,
